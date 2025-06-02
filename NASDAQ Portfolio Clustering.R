@@ -30,7 +30,7 @@ analyze_clusters <- function(data, cluster_labels, k) {
       filter(Cluster == i) %>%
       select(starts_with("Ret"))
     
-    # Geometric mean return (monthly ??? annualized)
+    # Geometric mean return (monthly → annualized)
     row_geo_means <- apply(portfolio, 1, function(x) prod(1 + x)^(1 / length(x)) - 1)
     monthly_geo <- prod(1 + row_geo_means)^(1 / length(row_geo_means)) - 1
     annual_geo <- (1 + monthly_geo)^12 - 1
@@ -40,12 +40,15 @@ analyze_clusters <- function(data, cluster_labels, k) {
     mean_stdev <- mean(row_stdevs) * sqrt(12)  # Annualized standard deviation
     
     # Coefficient of Variation
-    cv <- mean_stdev / abs(annual_geo)
+    cv <- mean_stdev / (annual_geo)
     
     cluster_stats[i, ] <- c(i, annual_geo, mean_stdev, cv)
     
-    cat(paste0("Cluster ", i,
-               " | Annualized Return: ", round(annual_geo * 100, 4), "%\n"))
+    cat(paste0(
+      "Cluster ", i,
+      " | Annualized Return: ", round(annual_geo * 100, 4), "%",
+      " | CV: ", round(cv, 4), "\n"
+    ))
   }
   
   # CV of the whole k-cluster portfolio (averaged)
